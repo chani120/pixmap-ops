@@ -190,6 +190,12 @@ class Image {
 
  private:
    // todo
+   int myh;
+   int myw;
+   int num_channels;
+   Pixel* mydata = NULL;
+
+   
 };
 }  // namespace agl
 #endif  // AGL_IMAGE_H_
