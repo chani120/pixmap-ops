@@ -188,11 +188,14 @@ class Image {
   // Fill this image with a color
   void fill(const Pixel& c);
 
+  void cleanUp();
+
  private:
    // todo
    int myh;
    int myw;
    int num_channels;
+   bool stbi;
    Pixel* mydata = NULL;
 
    

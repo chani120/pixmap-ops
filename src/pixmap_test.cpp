@@ -50,10 +50,11 @@ int main(int argc, char** argv)
 
    // should print 400 400
    cout << "loaded earth: " << image.width() << " " << image.height() << endl;
-
+   
    // resize
    Image resize = image.resize(200,300);
    resize.save("earth-200-300.png");
+  
 
    // grayscale
    Image grayscale = image.grayscale(); 
@@ -62,6 +63,38 @@ int main(int argc, char** argv)
    // flip horizontal
    Image flip = image.flipHorizontal(); 
    flip.save("earth-flip.png"); 
+
+   // flip vertical
+   Image flip_vertical = image.flipVertical();
+   flip_vertical.save("earth-flip-vertical.png");
+   
+   //invert
+   Image inverted = image.invert();
+   inverted.save("earth-inverted.png");
+
+   //multiply
+   Image multiplied = image.multiply(inverted);
+   multiplied.save("earth-multiplied.png");
+
+   //subtract
+   Image subtracted = image.difference(inverted);
+   subtracted.save("earth-subtracted.png");
+
+   //add
+   Image added = image.add(darkest);
+   added.save("earth-added.png");
+
+   //lightest
+   Image light = image.lightest(inverted);
+   light.save("earth-lightest.png");
+
+   //darkest
+   Image dark = image.darkest(inverted);
+   dark.save("earth-darkest.png");
+
+   //rotate90
+   Image rotate_90 = image.rotate90();
+   rotate_90.save("earth-rotated90.png");
 
    // sub image
    Image sub = image.subimage(200, 200, 100, 100); 

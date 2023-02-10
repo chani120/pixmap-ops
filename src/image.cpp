@@ -10,292 +10,443 @@
 
 namespace agl {
 
-
-Image::Image() {
-   myh = 0;
-   myw = 0;
-}
-
-Image::Image(int width, int height)  {
-   myw = width;
-   myh = height;
-   mydata = new Pixel[width*height];
-   num_channels =3;
-}
-
-Image::Image(const Image& orig) {
-   myw = orig.myw;
-   myh = orig.myh;
-   mydata = orig.mydata;
-   num_channels = orig.num_channels;  
-}
-
-Image& Image::operator=(const Image& orig) {
-  if (&orig == this) {
-    return *this;
-  }
-   int width1 = orig.myw;
-   int height1 = orig.myh;
-   Pixel* data1 = orig.mydata;
-  return *this;
-}
-
-Image::~Image() {
-}
-
-int Image::width() const { 
-   return myw;
-}
-
-int Image::height() const {
-   return myh;
-}
-
-char* Image::data() const {
-   return (char*)mydata;
-}
-
-void Image::set(int width, int height, unsigned char* data) {
-   myw = width;
-   myh = height;
-   mydata = (Pixel*)data;
-}
-
-bool Image::load(const std::string& filename, bool flip) {
-
-  mydata = (Pixel*) stbi_load(filename.c_str(), &myw, &myh, &num_channels, 3);
-  if (mydata == NULL) {
-      return false;
-  }
-  else {
-      return true;
-  }
-}   
-
-
-bool Image::save(const std::string& filename, bool flip) const {
-    if (mydata != NULL) {
-        Pixel* savedpic = (Pixel*)(stbi_write_png(filename.c_str(), myw, myh, num_channels, mydata, myw * sizeof(struct Pixel)));
-        return true;
+    Image::Image() {
+        myh = 0;
+        myw = 0;
+        num_channels = 3;
+        mydata = NULL;
     }
-    else {
-        return false;
+
+    Image::Image(int width, int height) {
+        myw = width;
+        myh = height;
+        num_channels = 3;
+        mydata = new  Pixel[width * height];
+        stbi = false;
     }
-}
 
-Pixel Image::get(int row, int col) const {
-   
-    Pixel temp = mydata[row*myw + col];
-    return temp; 
-}
+    Image::Image(const Image& orig) {
+        myw = orig.myw;
+        myh = orig.myh;
+        num_channels = orig.num_channels;
+        mydata = new Pixel[myw * myh];
+        memcpy(mydata, orig.mydata, sizeof(Pixel) * myw * myh);
+        stbi = false;
 
-void Image::set(int row, int col, const Pixel& color) {
-  
-   mydata[row*myw + col] = color;
-  
-}
+    }
+
+    Image& Image::operator=(const Image& orig) {
+        if (&orig == this) {
+            return *this;
+        }
+        if (mydata != NULL) {
+            cleanUp();
+        }
+        mydata = orig.mydata;
+        myw = orig.width();
+        myh = orig.height();
+        num_channels = orig.num_channels;
+        mydata = new struct Pixel[myw * myh];
+        memcpy(mydata, orig.mydata, sizeof(Pixel) * myw * myh);
+        stbi = false;
 
 
-Pixel Image::get(int i) const
-{
-   Pixel temp = mydata[i];
-   return temp;
-}
+        return *this;
+    }
 
-void Image::set(int i, const Pixel& c){
-   mydata[i] =c; 
-}
+    Image::~Image() {
+        cleanUp();
 
-Image Image::resize(int w, int h) const {
-   int row_var_1;
-   int col_var_1;
-   int old;
-   Image result(w, h);
-   for (int i = 0; i < myw; i++){
-      for(int j =0; j < myh; j++){
-         row_var_1 = ((myh -1)*j)/(h-1);
-         col_var_1 = ((myw -1)*i)/(w-1); 
-         old = row_var_1 * myw + floor(col_var_1);
-         Pixel setdata = get(old);
-         result.set((j*w +1), setdata);
-      }
-   }
-   return result;
-}
+    }
 
-Image Image::flipHorizontal() const {
-   Image result(myw, myh);
-   int row_var_2;
-   int col_var_2;
-   int old;
-   Image result(w, h);
-   for (int i = 0; i < myw; i++){
-      for(int j =0; j < myh; j++){
-         row_var_2 = myh -1; 
-         Pixel setdata = get(j * myw +1);
-         result.set((row_var_2* myw+1), setdata);
-      }
-   }
-   
-   return result;
+    int Image::width() const {
+        return myw;
+    }
 
-}
+    int Image::height() const {
+        return myh;
+    }
 
-Image Image::flipVertical() const {
-   Image result(myw, myh);
-   int row_var_2;
-   int col_var_2;
-   int old;
-   Image result(w, h);
-   for (int i = 0; i < myw; i++){
-      for(int j =0; j < myh; j++){
-         col_var_2 = myw -1; 
-         Pixel setdata = get(j * myw +1);
-         result.set((j* myw+col_var_2), setdata);
-      }
-   }
-   return result;
-}
+    char* Image::data() const {
+        return (char*)mydata;
+    }
 
-Image Image::rotate90() const {
-   Image result(0, 0);
-  
-   return result;
-}
+    void Image::set(int width, int height, unsigned char* data) {
+        myw = width;
+        myh = height;
+        if (mydata != NULL) {
+            cleanUp();
+        }
+        mydata = new struct Pixel[myw * myh];
+        memcpy(mydata, (Pixel*)data, sizeof(Pixel) * myw * myh);
+    }
 
-Image Image::subimage(int startx, int starty, int w, int h) const {
-  
-   Image sub(w, h);
-   for (int i = starty; i < starty + w; i++){
-      for(int j = startx; j < startx + h; j++){
-         Pixel setdata = get(j * myw +1);
-         sub.set(((j -startx) *w + (1 - starty)), setdata);
-      }
-   }
-    return sub;
-}
+    void Image::cleanUp() {
+        if (stbi == true) {
+            stbi_image_free(mydata);
+        }
+        else {
+            delete[] mydata;
+        }
+        stbi = false;
+        mydata = NULL;
+    }
 
-void Image::replace(const Image& image, int startx, int starty) {
-   for (int i = starty; i < (starty + image.width()); i++){
-      for(int j = startx; j < (startx + image.height()); j++){
-         Pixel setdata = image.get((j - startx) * Image.width() + (i - starty));
-         set((j * myw +1), setdata);
-      }
-   }
-}
 
-Image Image::swirl() const {
-   Image result(0, 0);
-   return result;
-}
+    /* loads the file  and returns true if its succesful and false if its not */
+    bool Image::load(const std::string& filename, bool flip) {
+        int x;
+        int y;
 
-Image Image::add(const Image& other) const {
-   Image result(0, 0);
-  
-   return result;
-}
+        mydata = (Pixel*)(stbi_load(filename.c_str(), &x, &y, &num_channels, 3));
+        if (mydata != NULL) {
+            myw = x;
+            myh = y;
+            stbi = true;
+            return true;
+        }
+        else {
+            return false;
+        }
+        stbi = true;
+    }
 
-Image Image::subtract(const Image& other) const {
-   Image result(0, 0);
-   
-   return result;
-}
 
-Image Image::multiply(const Image& other) const {
-   Image result(0, 0);
-   
-   return result;
-}
+    /* saves the file  */
+    bool Image::save(const std::string& filename, bool flip) const {
+        if (mydata != NULL) {
+            stbi_write_png(filename.c_str(), myw, myh, num_channels, mydata, sizeof(struct Pixel) * myw);  
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-Image Image::difference(const Image& other) const {
-   Image result(0, 0);
-  
-   return result;
-}
+    Pixel Image::get(int row, int col) const {
+        Pixel tempData = mydata[row * myw + col];
+        return tempData;
 
-Image Image::lightest(const Image& other) const {
-   Image result(0, 0);
-  
-   return result;
-}
+    }
 
-Image Image::darkest(const Image& other) const {
-   Image result(0, 0);
-  
-   return result;
-}
+    void Image::set(int row, int col, const Pixel& color) {
+        mydata[row * myw + col] = color;
+    }
 
-Image Image::gammaCorrect(float gamma) const {
 
-   Image result(myw, myh);
-   for (int i = 0; i < myw; i++){
-      for(int j =0; j < myh; j++){
-         Pixel setdata = get(j * myw +1);
-         float red = pow((setdata.r/255),(1/gamma));
-         float green = pow((setdata.g/255),(1/gamma));
-         float blue = pow((setdata.b/255),(1/gamma));
-         setdata.r = red * 255;
-         setdata.g= green * 255;
-         setdata.b = blue * 255;
-         result.set((j * myw + 1), setdata);
-      }
-   }
-   return result;
-}
+    Pixel Image::get(int i) const {
+        return mydata[i];
+    }
 
-Image Image::alphaBlend(const Image& other, float alpha) const {
-   Image result(myw, myh);
-   for (int i = 0; i < myw; i++){
-      for(int j =0; j < myh; j++){
-         Pixel image1 = get(j * myw +1);
-         Pixel image2 = other.get(j * myw +1);
-         Pixel setdata;
-         setdata.r = image1.r * alpha * image2.r * (1 - alpha);
-         setdata.g = image1.g * alpha * image2.g * (1 - alpha);
-         setdata.b = image1.b * alpha * image2.b * (1 - alpha);
-         result.set((j * myw + 1), setdata);
-      }
-   }
+    void Image::set(int i, const Pixel& c) {
+        mydata[i] = c;
+    }
 
-   return result;
-}
+    /* returns a copy of the image resized  */
+    Image Image::resize(int w, int h) const {
+        Image result(w, h);
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
 
-Image Image::invert() const {
-   Image image(0, 0);
-   
-   return image;
-}
+                int row1 = floor(((float)i / (h - 1)) * (myh - 1));
+                int col1 = floor(((float)j / (w - 1)) * (myw - 1));
 
-Image Image::grayscale() const {
-   Image result(myw, myh);
-   int var;
-   for (int i = 0; i < myw; i++){
-      for(int j =0; j < myh; j++){
-         Pixel setdata = get(j * myw + 1);
-         var = (setdata.r + setdata.g + setdata.b)/3;
-         setdata.r = var;
-         setdata.g = var;
-         setdata.b = var;
-         result.set((j * myw + 1), setdata);
-      }
-   }
-   return result;
-}
+                result.set(i, j, get(row1, col1));
+            }
+        }
 
-Image Image::colorJitter(int size) const {
-   Image image(0, 0);
-  
-   return image;
-}
+        return result;
+    }
 
-Image Image::bitmap(int size) const {
-   Image image(0, 0);
-   
-   return image;
-}
 
-void Image::fill(const Pixel& c) {
-  }
+    /*  Performs a horizontal flip of the image  */
+    Image Image::flipHorizontal() const {
+        Image result(myw, myh);
 
-} 
+        for (int i = 0; i < myh; i++) { 
+            for (int j = 0; j < myw; j++) {  
+                result.set(myh - 1 - i, j, get(i * myw + j)); 
+            }
+        }
+        return result;
 
+    }
+
+    Image Image::flipVertical() const {
+        Image result(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                result.set(i, myw - 1 - j, get(i, j)); 
+            }
+        }
+        return result;
+
+
+    }
+    /* Rotates the image clockwise by 90 degrees */   //creates an image but i cant access it
+    Image Image::rotate90() const {
+        Image result(myh, myw);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                result.set(myw - 1 - j, i, get(i, j));
+            }
+        }
+        return result;
+    }
+
+    /* Returns a sub-image with the top, left corner at (x,y) and width and height */
+    Image Image::subimage(int startx, int starty, int w, int h) const {
+        Image sub(w, h);
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                sub.set(i, j, get(startx + i, starty + j)); //sets the value at (i,j) in the new subimage to the value in the og image.
+            }
+        }
+        return sub;
+    }
+
+
+    /* replaces a block of pixels. useful for blending images */
+    void Image::replace(const Image& image, int startx, int starty) {
+        for (int i = 0; i < image.height(); i++) {
+            for (int j = 0; j < image.width(); j++) {
+                set(startx + i, starty + j, image.get(i, j));
+            }
+        }
+    }
+
+    Image Image::swirl() const {
+        Image result(0, 0);
+        return result;
+    }
+
+
+    Image Image::add(const Image& other) const {
+        Image image(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                Pixel other_pixels = other.get(i, j);
+
+                int red = temp_pixels.r + other_pixels.r;
+                if (red > 255) {
+                    red = 0;
+                }
+                int green = temp_pixels.g + other_pixels.g;
+                if (green > 255) {
+                    green = 255;
+                }
+                int blue = temp_pixels.b + other_pixels.b;
+                if (blue > 255) {
+                    blue = 255;
+                }
+
+                temp_pixels.r = red;
+                temp_pixels.g = green;
+                temp_pixels.b = blue;
+                image.set(i, j, temp_pixels);;
+            }
+        }
+        return image;
+    }
+
+    Image Image::multiply(const Image& other) const {
+        Image image(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                Pixel other_pixels = other.get(i, j);
+
+                int red = temp_pixels.r * other_pixels.r;
+                if (red > 255) {
+                    red = 255;
+                }
+                int green = temp_pixels.g * other_pixels.g;
+                if (green > 255) {
+                    green = 255;
+                }
+                int blue = temp_pixels.b * other_pixels.b;
+                if (blue > 255) {
+                    blue = 255;
+                }
+
+                temp_pixels.r = red;
+                temp_pixels.g = green;
+                temp_pixels.b = blue;
+                image.set(i, j, temp_pixels);;
+            }
+        }
+        return image;
+    }
+
+    Image Image::difference(const Image& other) const {
+        Image image(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                Pixel other_pixels = other.get(i, j);
+
+                int red = temp_pixels.r - other_pixels.r;
+                if (red < 0) {
+                    red = 0;
+                }
+                int green = temp_pixels.g - other_pixels.g;
+                if (green < 0) {
+                    green = 0;
+                }
+                int blue = temp_pixels.b - other_pixels.b;
+                if (blue < 0) {
+                    blue = 0;
+                }
+
+                temp_pixels.r = red;
+                temp_pixels.g = green;
+                temp_pixels.b = blue;
+                image.set(i, j, temp_pixels);;
+            }
+        }
+        return image;
+    }
+
+    Image Image::lightest(const Image& other) const {
+        Image image(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                Pixel other_pixels = other.get(i, j);
+
+                int total1 = temp_pixels.r + temp_pixels.g + temp_pixels.b;
+                int total2 = other_pixels.r + other_pixels.g + other_pixels.b;
+                if (total1 < total2) {
+                    temp_pixels.r = other_pixels.r;
+                    temp_pixels.g = other_pixels.g;
+                    temp_pixels.b = other_pixels.b;
+
+                }
+                image.set(i, j, temp_pixels);;
+            }
+        }
+        return image;
+    }
+
+    Image Image::darkest(const Image& other) const {
+        Image image(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                Pixel other_pixels = other.get(i, j);
+
+                int total1 = temp_pixels.r + temp_pixels.g + temp_pixels.b;
+                int total2 = other_pixels.r + other_pixels.g + other_pixels.b;
+                if (total1 > total2) {
+                    temp_pixels.r = other_pixels.r;
+                    temp_pixels.g = other_pixels.g;
+                    temp_pixels.b = other_pixels.b;
+
+                }
+                image.set(i, j, temp_pixels);;
+            }
+        }
+        return image;
+    }
+
+    /* Returns a copy of the image with a given gamma correction */
+    Image Image::gammaCorrect(float gamma) const {
+        Image result(myw, myh);
+
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+
+                Pixel temp_pixels = get(i, j);
+
+                temp_pixels.r = (pow(((float)temp_pixels.r / 255), (1.0/gamma))) * 255;
+                temp_pixels.g = (pow(((float)temp_pixels.r / 255), (1.0/gamma))) * 255;
+                temp_pixels.b = (pow(((float)temp_pixels.r / 255), (1.0/gamma))) * 255;
+
+                result.set(i, j, temp_pixels);
+
+            }
+        }
+
+        return result;
+    }
+
+    /* returns a copy of this image with another one blemded with alpha */
+    Image Image::alphaBlend(const Image& other, float alpha) const {
+        Image result(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+
+                Pixel current_pixels = get(i, j);
+                Pixel new_pixels = other.get(i, j);
+                Pixel blended; 
+                blended.r = current_pixels.r * (1 - alpha) + new_pixels.r * alpha; 
+                blended.g = current_pixels.g * (1 - alpha) + new_pixels.g * alpha;
+                blended.b = current_pixels.b * (1 - alpha) + new_pixels.b * alpha;
+
+                result.set(i, j, blended); 
+
+            }
+        }
+        return result;
+    }
+
+    Image Image::invert() const {
+      Image image(myw, myh);
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+               Pixel temp_pixels = get(i, j);
+               Pixel inverted;
+                inverted.r = 255 - temp_pixels.r;
+                inverted.g = 255 - temp_pixels.g;
+                inverted.b = 255 - temp_pixels.b;
+
+                image.set(i, j, inverted);;
+            }
+        }
+        return image;
+    }
+
+    /*  Returns a copy of the image as a grayscale image */
+    Image Image::grayscale() const {
+        Image result(myw, myh);
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                temp_pixels.r = (temp_pixels.r + temp_pixels.g + temp_pixels.b) / 3.0;
+                temp_pixels.g = (temp_pixels.r + temp_pixels.g + temp_pixels.b) / 3.0;
+                temp_pixels.b = (temp_pixels.r + temp_pixels.g + temp_pixels.b) / 3.0;
+                result.set(i, j, temp_pixels); //sets the pixels in the result image
+            }
+        }
+
+        return result;
+    }
+
+    Image Image::colorJitter(int size) const {
+        Image image(0, 0);
+
+        return image;
+    }
+
+    Image Image::bitmap(int size) const {
+        Image image(0, 0);
+
+        return image;
+    }
+
+    void Image::fill(const Pixel& c) {
+    }
+
+}  // namespace agl
