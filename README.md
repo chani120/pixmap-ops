@@ -2,7 +2,7 @@
 
 Image manipulation demos based on the PPM image format.
 
-TODO: Add a representative image for your project here
+killua+gon.jpg
 
 ## How to build
 
@@ -45,9 +45,56 @@ pixmap-ops/build $ ../bin/pixmap_art
 
 ## Image operators
 
-TODO: Document the features of your PPM image class here. Include example images.
+Resizes This Image to 200 x 300:
+killua+gon-200-300.png
 
-## Results
+Subimage of This Image
+killua+gon-subimage.png
 
-TODO: Show artworks using your class
+Flips This Image Horizontally
+killua+gon-flip.png
+
+Flips This Image Vertically
+killua+gon-flip-vertical.png
+
+This Image Rotated 90 Degrees
+killua+gon-rotated90.png
+
+Blends Soup Image with This Image
+killua+gon-blend-0.5.png
+
+Gamma Effect of 0.6
+killua+gon-gamma-0.6.png
+
+Gamma Effect of 2.2
+killua+gon-gamma-2.2.png
+
+This Image with Grayscale Effect
+killua+gon-grayscale.png
+
+Multiplies This Image Pixels with Inverted Image Pixels
+killua+gon-multiplied.png
+
+Difference of This Image Pixels with Inverted Image Pixels
+killua+gon-subtracted.png
+
+Sum of This Image Pixels with Subtracted Image Pixels
+killua+gon-added.png
+
+This Image Inverted
+killua+gon-inverted.png
+
+Lightest Pixels between This Image and Inverted Pixels
+killua+gon-lightest.png
+
+Darkest Pixels between This Image and Inverted Pixels
+killua+gon-darkest.png
+
+Swirl of This Image
+killua+gon-swirl.png
+
+Color Jitter of This Image
+killua+gon-colorjitter.png
+
+
 
