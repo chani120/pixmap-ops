@@ -454,9 +454,42 @@ namespace agl {
 
 
     Image Image::colorJitter(int size) const {
-        Image image(0, 0);
+        Image result(myw, myh);
+        float red_random;
+        float green_random;
+        float blue_random;
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                red_random = rand() % ((temp_pixels.r + size) - (temp_pixels.r - size) + 1) + (temp_pixels.r - size);
+                if (red_random < 0) {
+                    red_random = 0;
+                }
+                if (red_random > 255) {
+                    red_random = 255;
+                }
+                green_random = rand() % ((temp_pixels.g + size) - (temp_pixels.g - size) + 1) + (temp_pixels.g - size);
+                if (green_random < 0) {
+                    green_random = 0;
+                }
+                if (green_random > 255) {
+                    green_random = 255;
+                }
+                blue_random = rand() % ((temp_pixels.b + size) - (temp_pixels.b - size) + 1) + (temp_pixels.b - size);
+                if (blue_random < 0) {
+                    blue_random = 0;
+                }
+                if (blue_random > 255) {
+                    blue_random = 255;
+                }
+                temp_pixels.r = red_random;
+                temp_pixels.g = green_random;
+                temp_pixels.b = blue_random;
+                result.set(i, j, temp_pixels);
+            }
+        }
 
-        return image;
+        return result;
     }
 
     Image Image::bitmap(int size) const {
