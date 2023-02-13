@@ -2,7 +2,7 @@
 
 Image manipulation demos based on the PPM image format.
 
-![killua+gon](https://user-images.githubusercontent.com/44120884/218380319-80c0fdec-599d-4531-a028-d4bc7e87e45c.jpg)
+![killua+gon](https://user-images.githubusercontent.com/44120884/218390316-c3f5e0e4-de4d-4701-a108-1b3040c70e3e.jpg)
 
 ## How to build
 
