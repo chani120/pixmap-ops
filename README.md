@@ -57,7 +57,8 @@ Flips This Image Horizontally:
 
 ![killua+gon-flip](https://user-images.githubusercontent.com/44120884/218378946-218b6498-0842-4cf8-9ae6-829ad40d355b.png)
 
-Flips This Image Vertically
+Flips This Image Vertically:
+
 ![killua+gon-flip-vertical](https://user-images.githubusercontent.com/44120884/218379089-c1153c5d-e269-498f-8279-bf790562640c.png)
 
 This Image Rotated 90 Degrees:
