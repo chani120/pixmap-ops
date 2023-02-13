@@ -184,7 +184,7 @@ namespace agl {
 
 
     }
-    /* Rotates the image clockwise by 90 degrees */   //creates an image but i cant access it
+    /* Rotates the image clockwise by 90 degrees */  
     Image Image::rotate90() const {
         Image result(myh, myw);
 
@@ -202,7 +202,7 @@ namespace agl {
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                sub.set(i, j, get(startx + i, starty + j)); //sets the value at (i,j) in the new subimage to the value in the og image.
+                sub.set(i, j, get(startx + i, starty + j)); 
             }
         }
         return sub;
@@ -219,8 +219,26 @@ namespace agl {
     }
 
     Image Image::swirl() const {
-        Image result(0, 0);
-        return result;
+        Image image(myw, myh);
+        float newred;
+        float newgreen;
+        float newblue;
+
+
+        for (int i = 0; i < myh; i++) {
+            for (int j = 0; j < myw; j++) {
+                Pixel temp_pixels = get(i, j);
+                newred = temp_pixels.g;
+                newgreen = temp_pixels.b;
+                newblue = temp_pixels.r;
+                temp_pixels.r = newred;
+                temp_pixels.g = newgreen;
+                temp_pixels.b = newblue;
+                image.set(i, j, temp_pixels); 
+            }
+        }
+
+        return image;
     }
 
 
@@ -232,15 +250,15 @@ namespace agl {
                 Pixel temp_pixels = get(i, j);
                 Pixel other_pixels = other.get(i, j);
 
-                int red = temp_pixels.r + other_pixels.r;
+                float red = temp_pixels.r + other_pixels.r;
                 if (red > 255) {
                     red = 0;
                 }
-                int green = temp_pixels.g + other_pixels.g;
+                float green = temp_pixels.g + other_pixels.g;
                 if (green > 255) {
                     green = 255;
                 }
-                int blue = temp_pixels.b + other_pixels.b;
+                float blue = temp_pixels.b +  other_pixels.b;
                 if (blue > 255) {
                     blue = 255;
                 }
@@ -427,12 +445,13 @@ namespace agl {
                 temp_pixels.r = (temp_pixels.r + temp_pixels.g + temp_pixels.b) / 3.0;
                 temp_pixels.g = (temp_pixels.r + temp_pixels.g + temp_pixels.b) / 3.0;
                 temp_pixels.b = (temp_pixels.r + temp_pixels.g + temp_pixels.b) / 3.0;
-                result.set(i, j, temp_pixels); //sets the pixels in the result image
+                result.set(i, j, temp_pixels); 
             }
         }
 
         return result;
     }
+
 
     Image Image::colorJitter(int size) const {
         Image image(0, 0);
@@ -449,4 +468,4 @@ namespace agl {
     void Image::fill(const Pixel& c) {
     }
 
-}  // namespace agl
+}  

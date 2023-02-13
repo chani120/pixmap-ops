@@ -41,7 +41,7 @@ int main(int argc, char** argv)
    pixel.r = 255;
    image.set(1, 1, pixel);
    image.save("feep-test-newcolor.png");
-
+ 
    // test a non-trivial image
    if (!image.load("../images/earth.png")) {
       std::cout << "ERROR: Cannot load image! Exiting...\n";
@@ -51,14 +51,19 @@ int main(int argc, char** argv)
    // should print 400 400
    cout << "loaded earth: " << image.width() << " " << image.height() << endl;
    
+ 
+
    // resize
    Image resize = image.resize(200,300);
    resize.save("earth-200-300.png");
-  
-
+    
    // grayscale
    Image grayscale = image.grayscale(); 
    grayscale.save("earth-grayscale.png");
+
+   // swirl
+   Image swirl = image.swirl(); 
+   swirl.save("earth-swirl.png");
 
    // flip horizontal
    Image flip = image.flipHorizontal(); 
@@ -80,10 +85,6 @@ int main(int argc, char** argv)
    Image subtracted = image.difference(inverted);
    subtracted.save("earth-subtracted.png");
 
-   //add
-   Image added = image.add(darkest);
-   added.save("earth-added.png");
-
    //lightest
    Image light = image.lightest(inverted);
    light.save("earth-lightest.png");
@@ -91,7 +92,11 @@ int main(int argc, char** argv)
    //darkest
    Image dark = image.darkest(inverted);
    dark.save("earth-darkest.png");
-
+   
+   //add
+   Image added = image.add(subtracted);
+   added.save("earth-added.png");
+   
    //rotate90
    Image rotate_90 = image.rotate90();
    rotate_90.save("earth-rotated90.png");
