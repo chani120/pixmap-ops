@@ -128,6 +128,7 @@ class Image {
   // swirl the colors 
   Image swirl() const;
 
+
   // Apply the following calculation to the pixels in 
   // our image and the given image:
   //    result.pixel = this.pixel + other.pixel
