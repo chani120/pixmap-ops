@@ -1,7 +1,6 @@
 // Copyright 2021, Aline Normoyle, alinen
 
 #include "image.h"
-
 #include <cassert>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
@@ -92,7 +91,6 @@ namespace agl {
         mydata = NULL;
     }
 
-
     /* loads the file  and returns true if its succesful and false if its not */
     bool Image::load(const std::string& filename, bool flip) {
         int x;
@@ -110,7 +108,6 @@ namespace agl {
         }
         stbi = true;
     }
-
 
     /* saves the file  */
     bool Image::save(const std::string& filename, bool flip) const {
@@ -132,7 +129,6 @@ namespace agl {
     void Image::set(int row, int col, const Pixel& color) {
         mydata[row * myw + col] = color;
     }
-
 
     Pixel Image::get(int i) const {
         return mydata[i];
@@ -158,7 +154,6 @@ namespace agl {
         return result;
     }
 
-
     /*  Performs a horizontal flip of the image  */
     Image Image::flipHorizontal() const {
         Image result(myw, myh);
@@ -181,9 +176,8 @@ namespace agl {
             }
         }
         return result;
-
-
     }
+
     /* Rotates the image clockwise by 90 degrees */  
     Image Image::rotate90() const {
         Image result(myh, myw);
@@ -208,7 +202,6 @@ namespace agl {
         return sub;
     }
 
-
     /* replaces a block of pixels. useful for blending images */
     void Image::replace(const Image& image, int startx, int starty) {
         for (int i = 0; i < image.height(); i++) {
@@ -224,7 +217,6 @@ namespace agl {
         float newgreen;
         float newblue;
 
-
         for (int i = 0; i < myh; i++) {
             for (int j = 0; j < myw; j++) {
                 Pixel temp_pixels = get(i, j);
@@ -237,10 +229,8 @@ namespace agl {
                 image.set(i, j, temp_pixels); 
             }
         }
-
         return image;
     }
-
 
     Image Image::add(const Image& other) const {
         Image image(myw, myh);
@@ -249,7 +239,6 @@ namespace agl {
             for (int j = 0; j < myw; j++) {
                 Pixel temp_pixels = get(i, j);
                 Pixel other_pixels = other.get(i, j);
-
                 float red = temp_pixels.r + other_pixels.r;
                 if (red > 255) {
                     red = 0;
@@ -262,7 +251,6 @@ namespace agl {
                 if (blue > 255) {
                     blue = 255;
                 }
-
                 temp_pixels.r = red;
                 temp_pixels.g = green;
                 temp_pixels.b = blue;
@@ -279,7 +267,6 @@ namespace agl {
             for (int j = 0; j < myw; j++) {
                 Pixel temp_pixels = get(i, j);
                 Pixel other_pixels = other.get(i, j);
-
                 int red = temp_pixels.r * other_pixels.r;
                 if (red > 255) {
                     red = 255;
@@ -292,7 +279,6 @@ namespace agl {
                 if (blue > 255) {
                     blue = 255;
                 }
-
                 temp_pixels.r = red;
                 temp_pixels.g = green;
                 temp_pixels.b = blue;
@@ -309,7 +295,6 @@ namespace agl {
             for (int j = 0; j < myw; j++) {
                 Pixel temp_pixels = get(i, j);
                 Pixel other_pixels = other.get(i, j);
-
                 int red = temp_pixels.r - other_pixels.r;
                 if (red < 0) {
                     red = 0;
@@ -322,7 +307,6 @@ namespace agl {
                 if (blue < 0) {
                     blue = 0;
                 }
-
                 temp_pixels.r = red;
                 temp_pixels.g = green;
                 temp_pixels.b = blue;
@@ -339,14 +323,12 @@ namespace agl {
             for (int j = 0; j < myw; j++) {
                 Pixel temp_pixels = get(i, j);
                 Pixel other_pixels = other.get(i, j);
-
                 int total1 = temp_pixels.r + temp_pixels.g + temp_pixels.b;
                 int total2 = other_pixels.r + other_pixels.g + other_pixels.b;
                 if (total1 < total2) {
                     temp_pixels.r = other_pixels.r;
                     temp_pixels.g = other_pixels.g;
                     temp_pixels.b = other_pixels.b;
-
                 }
                 image.set(i, j, temp_pixels);;
             }
@@ -361,14 +343,12 @@ namespace agl {
             for (int j = 0; j < myw; j++) {
                 Pixel temp_pixels = get(i, j);
                 Pixel other_pixels = other.get(i, j);
-
                 int total1 = temp_pixels.r + temp_pixels.g + temp_pixels.b;
                 int total2 = other_pixels.r + other_pixels.g + other_pixels.b;
                 if (total1 > total2) {
                     temp_pixels.r = other_pixels.r;
                     temp_pixels.g = other_pixels.g;
                     temp_pixels.b = other_pixels.b;
-
                 }
                 image.set(i, j, temp_pixels);;
             }
@@ -383,15 +363,11 @@ namespace agl {
 
         for (int i = 0; i < myh; i++) {
             for (int j = 0; j < myw; j++) {
-
                 Pixel temp_pixels = get(i, j);
-
                 temp_pixels.r = (pow(((float)temp_pixels.r / 255), (1.0/gamma))) * 255;
                 temp_pixels.g = (pow(((float)temp_pixels.r / 255), (1.0/gamma))) * 255;
                 temp_pixels.b = (pow(((float)temp_pixels.r / 255), (1.0/gamma))) * 255;
-
                 result.set(i, j, temp_pixels);
-
             }
         }
 
@@ -404,16 +380,13 @@ namespace agl {
 
         for (int i = 0; i < myh; i++) {
             for (int j = 0; j < myw; j++) {
-
                 Pixel current_pixels = get(i, j);
                 Pixel new_pixels = other.get(i, j);
                 Pixel blended; 
                 blended.r = current_pixels.r * (1 - alpha) + new_pixels.r * alpha; 
                 blended.g = current_pixels.g * (1 - alpha) + new_pixels.g * alpha;
                 blended.b = current_pixels.b * (1 - alpha) + new_pixels.b * alpha;
-
                 result.set(i, j, blended); 
-
             }
         }
         return result;
@@ -421,14 +394,14 @@ namespace agl {
 
     Image Image::invert() const {
       Image image(myw, myh);
+
         for (int i = 0; i < myh; i++) {
             for (int j = 0; j < myw; j++) {
-               Pixel temp_pixels = get(i, j);
-               Pixel inverted;
+                Pixel temp_pixels = get(i, j);
+                Pixel inverted;
                 inverted.r = 255 - temp_pixels.r;
                 inverted.g = 255 - temp_pixels.g;
                 inverted.b = 255 - temp_pixels.b;
-
                 image.set(i, j, inverted);;
             }
         }
@@ -448,13 +421,13 @@ namespace agl {
                 result.set(i, j, temp_pixels); 
             }
         }
-
         return result;
     }
 
 
     Image Image::colorJitter(int size) const {
         Image result(myw, myh);
+
         float red_random;
         float green_random;
         float blue_random;
